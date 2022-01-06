@@ -4,7 +4,7 @@ use rayon::prelude::*;
 use std::time::SystemTime;
 
 pub struct Blockchain {
-    chain: Vec<Block>,
+    pub chain: Vec<Block>,
     difficulty: usize,
     concurrent_hashes: u64,
     min_tx_per_block: u8,
@@ -20,6 +20,9 @@ impl Blockchain {
         }
     }
 
+    pub fn len(&self) -> usize {
+        self.chain.len()
+    }
     pub fn is_valid(&self) -> bool {
         for i in 1..self.chain.len() {
             if !(self
@@ -116,10 +119,15 @@ mod tests {
         let mut nonce = 0;
         let time = SystemTime::now();
 
+        let mut cntr = 0;
 		loop {
-  
+            cntr += 1;
+            
 			chain.mine_block(1, time, txs.clone(), 3);
 			nonce += concurrent_hashes;
-		}
+            if (cntr == 100) {
+                break;
+            }
+        }
 	}
 }
