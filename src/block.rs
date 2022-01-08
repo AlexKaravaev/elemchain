@@ -1,33 +1,27 @@
 use crate::transaction::Transaction;
 use serde::{Deserialize, Serialize};
 use sha2::{digest::generic_array::GenericArray, Digest, Sha256};
+use std::cmp::PartialEq;
+use std::fmt;
 use std::time::SystemTime;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct Block {
     pub hash: String,
     pub prev_hash: String,
     pub transactions: Vec<Transaction>,
     pub time: SystemTime,
-    pub index: u128,
     pub nonce: u64,
 }
 
 impl Block {
-    pub fn new(
-        prev: String,
-        txs: Vec<Transaction>,
-        nonce: u64,
-        ms: SystemTime,
-        index: u128,
-    ) -> Self {
+    pub fn new(prev: String, txs: Vec<Transaction>, nonce: u64, ms: SystemTime) -> Self {
         Block {
             hash: String::new(),
             prev_hash: prev,
             transactions: txs,
             nonce: nonce,
             time: ms,
-            index: index,
         }
     }
 
@@ -42,6 +36,29 @@ impl Block {
 
     pub fn is_valid(&self, prev_block: &Block) -> bool {
         self.prev_hash == prev_block.hash
+    }
+}
+
+impl fmt::Display for Block {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // Write strictly the first element into the supplied output
+        // stream: `f`. Returns `fmt::Result` which indicates whether the
+        // operation succeeded or failed. Note that `write!` uses syntax which
+        // is very similar to `println!`.
+        let mut result_string = String::new();
+        result_string.push_str(&("=".repeat(30) + "\n"));
+        result_string.push_str(&("Hash: ".to_owned() + &self.hash + "\n"));
+        result_string.push_str(&("Prev Hash: ".to_owned() + &self.prev_hash + "\n"));
+        result_string
+            .push_str(&("Tx len: ".to_owned() + &self.transactions.len().to_string() + "\n"));
+        result_string
+            .push_str(&("Nonce: ".to_owned() + &self.nonce.to_string() + "\n"));
+        result_string.push_str(
+            &("Time: ".to_owned() + &self.time.duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs_f64().to_string() + "\n"),
+        );
+        result_string.push_str(&("=".repeat(30) + "\n\n"));
+
+        write!(f, "{}", result_string)
     }
 }
 
@@ -65,7 +82,6 @@ pub mod tests {
             prev_hash: String::from("123"),
             transactions: vec![tx1.clone()],
             time: time_now,
-            index: 0,
             nonce: 0,
         };
 
@@ -74,7 +90,6 @@ pub mod tests {
             prev_hash: String::from("123"),
             transactions: vec![tx1.clone()],
             time: time_now,
-            index: 0,
             nonce: 0,
         };
 
@@ -83,7 +98,6 @@ pub mod tests {
             prev_hash: String::from("123"),
             transactions: vec![tx1.clone()],
             time: time_now,
-            index: 0,
             nonce: 0,
         };
 
@@ -117,7 +131,6 @@ pub mod tests {
             prev_hash: String::from("123"),
             transactions: vec![tx1.clone()],
             time: time_now2,
-            index: 0,
             nonce: 0,
         };
 
@@ -137,7 +150,6 @@ pub mod tests {
             prev_hash: String::from("123"),
             transactions: vec![tx1, tx2],
             time: time_now2,
-            index: 0,
             nonce: 0,
         };
 

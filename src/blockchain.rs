@@ -1,8 +1,11 @@
 use crate::{block::Block, transaction::Transaction};
 use rand::Rng;
 use rayon::prelude::*;
+use std::cmp::PartialEq;
+use std::fmt;
 use std::time::SystemTime;
 
+#[derive(PartialEq)]
 pub struct Blockchain {
     pub chain: Vec<Block>,
     difficulty: usize,
@@ -38,6 +41,35 @@ impl Blockchain {
         true
     }
 
+    pub fn add_block(&mut self, txs: Vec<Transaction>) -> bool {
+        let mut success;
+        if txs.len() < self.min_tx_per_block.into() {
+            success = false;
+        } else {
+            let mut cntr = 0;
+            let mut nonce = 0;
+            loop {
+                cntr += 1;
+
+                let time = SystemTime::now();
+
+                let block = self.mine_block(1, time, txs.clone(), 3);
+                match block {
+                    Some(block) => {
+                        self.chain.push(block);
+                        success = true;
+                        break;
+                    }
+                    None => {},
+                };
+
+                nonce += self.concurrent_hashes;
+                
+            }
+        }
+        success
+    }
+
     fn mine_block(
         &self,
         nonce: u64,
@@ -49,7 +81,7 @@ impl Blockchain {
                             0123456789";
         let mut rng = rand::thread_rng();
 
- 		let mut mine_target: String = (0..self.difficulty)
+        let mut mine_target: String = (0..self.difficulty)
             .map(|_| {
                 let idx = rng.gen_range(0..CHARSET.len());
                 CHARSET[idx] as char
@@ -57,8 +89,6 @@ impl Blockchain {
             .collect();
 
         mine_target = mine_target.to_lowercase();
-
-        println!("Mine target {}", mine_target);
 
         let mut nonces: Vec<u64> = (0..self.concurrent_hashes).map(|x| x + nonce).collect();
 
@@ -68,11 +98,11 @@ impl Blockchain {
         };
 
         nonces.par_iter().find_map_any(move |&nonce| {
-            let mut block = Block::new(prev.clone(), txs.clone(), nonce, time, idx);
+            let mut block = Block::new(prev.clone(), txs.clone(), nonce, time);
 
             let hash = block.generate_hash();
 
-            if (hash.starts_with(&mine_target)) {
+            if hash.starts_with(&mine_target) {
                 println!("\nMined! {}\n", block.hash.clone());
                 return Some(block);
             }
@@ -82,11 +112,41 @@ impl Blockchain {
     }
 }
 
+impl fmt::Display for Blockchain {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // Write strictly the first element into the supplied output
+        // stream: `f`. Returns `fmt::Result` which indicates whether the
+        // operation succeeded or failed. Note that `write!` uses syntax which
+        // is very similar to `println!`.
+        let mut display_chain = String::new();
+
+        for i in 0..self.chain.len() {
+            display_chain.push_str(&("-".repeat(14)));
+            display_chain.push_str(&(i.to_string()));
+            display_chain.push_str(&("-".repeat(15) + "\n"));
+            display_chain.push_str(&self.chain[i].to_string());
+        }
+        write!(f, "{}", display_chain)
+    }
+}
+
 #[cfg(test)]
-mod tests {
-    use crate::block::tests;
+pub mod tests {
+    use crate::block::tests::{self, generate_blocks};
     use crate::{block::Block, blockchain::Blockchain, transaction::Transaction};
     use std::time::SystemTime;
+
+    pub fn generate_blockchain() -> Blockchain {
+        let blocks = generate_blocks();
+        let chain = Blockchain {
+            chain: blocks,
+            difficulty: 5,
+            min_tx_per_block: 3,
+            concurrent_hashes: 256,
+        };
+
+        chain
+    }
 
     #[test]
     fn test_chain_validity() {
@@ -103,6 +163,19 @@ mod tests {
     }
 
     #[test]
+    fn test_display() {
+        let blocks = crate::block::tests::generate_blocks();
+
+        let chain = Blockchain {
+            chain: blocks,
+            difficulty: 1,
+            min_tx_per_block: 1,
+            concurrent_hashes: 256,
+        };
+
+        println!("{}", chain);
+    }
+    #[test]
     fn test_mining() {
         let mut txs: Vec<Transaction> = vec![];
         for i in 0..10 {
@@ -114,20 +187,20 @@ mod tests {
             });
         }
 
-		let concurrent_hashes = 256;
+        let concurrent_hashes = 256;
         let chain = Blockchain::new(5, 3, concurrent_hashes);
         let mut nonce = 0;
         let time = SystemTime::now();
 
         let mut cntr = 0;
-		loop {
+        loop {
             cntr += 1;
-            
-			chain.mine_block(1, time, txs.clone(), 3);
-			nonce += concurrent_hashes;
-            if (cntr == 100) {
+
+            chain.mine_block(1, time, txs.clone(), 3);
+            nonce += concurrent_hashes;
+            if cntr == 100 {
                 break;
             }
         }
-	}
+    }
 }
