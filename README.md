@@ -1,5 +1,7 @@
 # ElemChain
 
+[![tests](https://github.com/AlexKaravaev/elemchain/actions/workflows/tests.yml/badge.svg)](https://github.com/AlexKaravaev/elemchain/actions/workflows/tests.yml)
+
 Elementary and simple blockchain implemented in Rust.
 
 Mostly this project is done to get familiar with Rust language and broaden understanding of how cryptocurrency/blockchain systems do work. 
