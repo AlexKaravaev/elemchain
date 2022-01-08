@@ -5,7 +5,7 @@ use std::cmp::PartialEq;
 use std::fmt;
 use std::time::SystemTime;
 
-#[derive(Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct Block {
     pub hash: String,
     pub prev_hash: String,
@@ -46,17 +46,17 @@ impl fmt::Display for Block {
         // operation succeeded or failed. Note that `write!` uses syntax which
         // is very similar to `println!`.
         let mut result_string = String::new();
-        result_string.push_str(&("=".repeat(30) + "\n"));
-        result_string.push_str(&("Hash: ".to_owned() + &self.hash + "\n"));
-        result_string.push_str(&("Prev Hash: ".to_owned() + &self.prev_hash + "\n"));
+        result_string.push_str(&("=".repeat(30) + "\r\n"));
+        result_string.push_str(&("Hash: ".to_owned() + &self.hash + "\r\n"));
+        result_string.push_str(&("Prev Hash: ".to_owned() + &self.prev_hash + "\r\n"));
         result_string
-            .push_str(&("Tx len: ".to_owned() + &self.transactions.len().to_string() + "\n"));
+            .push_str(&("Tx len: ".to_owned() + &self.transactions.len().to_string() + "\r\n"));
         result_string
-            .push_str(&("Nonce: ".to_owned() + &self.nonce.to_string() + "\n"));
+            .push_str(&("Nonce: ".to_owned() + &self.nonce.to_string() + "\r\n"));
         result_string.push_str(
-            &("Time: ".to_owned() + &self.time.duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs_f64().to_string() + "\n"),
+            &("Time: ".to_owned() + &self.time.duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs_f64().to_string() + "\r\n"),
         );
-        result_string.push_str(&("=".repeat(30) + "\n\n"));
+        result_string.push_str(&("=".repeat(30) + "\r\r\n\n"));
 
         write!(f, "{}", result_string)
     }

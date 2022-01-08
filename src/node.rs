@@ -5,7 +5,7 @@ pub struct Node {
 }
 
 impl Node {
-    fn resolve_chain_conflict(&mut self, other: &Blockchain) {
+    pub fn resolve_chain_conflict(&mut self, other: &Blockchain) {
         let own_valid = self.blockchain.is_valid();
         let other_valid = other.is_valid();
         let mut correct_chain;

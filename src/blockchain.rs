@@ -1,11 +1,12 @@
 use crate::{block::Block, transaction::Transaction};
 use rand::Rng;
 use rayon::prelude::*;
+use serde::{Serialize, Deserialize};
 use std::cmp::PartialEq;
 use std::fmt;
 use std::time::SystemTime;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Serialize, Deserialize, Debug)]
 pub struct Blockchain {
     pub chain: Vec<Block>,
     difficulty: usize,
@@ -44,6 +45,11 @@ impl Blockchain {
     pub fn add_block(&mut self, txs: Vec<Transaction>) -> bool {
         let mut success;
         if txs.len() < self.min_tx_per_block.into() {
+            println!(
+                "Not enough txs to mine block. Current txs {}, Current min is {}",
+                txs.len(),
+                self.min_tx_per_block
+            );
             success = false;
         } else {
             let mut cntr = 0;
@@ -60,11 +66,10 @@ impl Blockchain {
                         success = true;
                         break;
                     }
-                    None => {},
+                    None => {}
                 };
 
                 nonce += self.concurrent_hashes;
-                
             }
         }
         success
@@ -123,10 +128,13 @@ impl fmt::Display for Blockchain {
         for i in 0..self.chain.len() {
             display_chain.push_str(&("-".repeat(14)));
             display_chain.push_str(&(i.to_string()));
-            display_chain.push_str(&("-".repeat(15) + "\n"));
+            display_chain.push_str(&("-".repeat(15) + "\r\n"));
             display_chain.push_str(&self.chain[i].to_string());
         }
-        write!(f, "{}", display_chain)
+        if self.chain.len() == 0 {
+            display_chain.push_str("Chain is empty for now. Try to generate few transactions");
+        }
+        write!(f, "{}\n", display_chain)
     }
 }
 
