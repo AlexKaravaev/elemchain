@@ -1,7 +1,10 @@
+use std::time::SystemTime;
+
 use crate::blockchain::Blockchain;
 
 pub struct Node {
     pub blockchain: Blockchain,
+    pub last_time_synced: f64,
 }
 
 impl Node {
@@ -9,12 +12,11 @@ impl Node {
         let own_valid = self.blockchain.is_valid();
         let other_valid = other.is_valid();
         let mut correct_chain;
-
         if own_valid && other_valid {
             if self.blockchain.len() >= other.len() {
                 correct_chain = &self.blockchain;
             } else {
-                correct_chain = &other
+                correct_chain = &other;
             }
         } else if other_valid {
             correct_chain = &other;
@@ -23,6 +25,7 @@ impl Node {
         } else {
             panic!("All chains are invalid");
         }
+        self.last_time_synced = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs_f64();
 		
 
 		self.blockchain.chain = correct_chain.chain.clone();

@@ -1,7 +1,7 @@
 use crate::{block::Block, transaction::Transaction};
 use rand::Rng;
 use rayon::prelude::*;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::cmp::PartialEq;
 use std::fmt;
 use std::time::SystemTime;
@@ -27,6 +27,19 @@ impl Blockchain {
     pub fn len(&self) -> usize {
         self.chain.len()
     }
+
+    pub fn add_block(&mut self, block: Block) {
+        if self.chain.len() == 0 {
+            return;
+        }
+
+        let latest_block = self.chain.last().unwrap();
+        if block.is_valid(latest_block) {
+            self.chain.push(block);
+        } 
+        // Here in else we should add this block to orphans, but we will not do it
+    }
+
     pub fn is_valid(&self) -> bool {
         for i in 1..self.chain.len() {
             if !(self
@@ -42,7 +55,7 @@ impl Blockchain {
         true
     }
 
-    pub fn add_block(&mut self, txs: Vec<Transaction>) -> bool {
+    pub fn try_mine(&mut self, txs: Vec<Transaction>) -> bool {
         let mut success;
         if txs.len() < self.min_tx_per_block.into() {
             println!(
