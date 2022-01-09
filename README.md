@@ -22,6 +22,7 @@ What it can do:
 Things to be done in the future:
 
 * Merkle roots instead of just having all txs in the block.
+* No mempool with pending transactions. For now they are only displayed for local node(if this node has done it, then only this node can mine it)
 * No wallet logic at all. Transaction are always 100 amount of coins send to some random peer in the network. So it's not even checked whether sender have this amount in hands.
 * Now all of the blockchain is broadcasted to the network on each user interaction with cli app. To be honest, I just don't know how this part in cryptocurrency works. I guess we should only send blocks, when they are mined, but then when do we get the chain from other peers? Only on init?
 * and many many other things
