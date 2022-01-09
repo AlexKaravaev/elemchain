@@ -1,6 +1,6 @@
 use crate::transaction::Transaction;
 use serde::{Deserialize, Serialize};
-use sha2::{digest::generic_array::GenericArray, Digest, Sha256};
+use sha2::{Digest, Sha256};
 use std::cmp::PartialEq;
 use std::fmt;
 use std::time::SystemTime;
@@ -28,7 +28,7 @@ impl Block {
     pub fn generate_hash(&mut self) -> String {
         let block_string = serde_json::to_string(&self);
 
-        let mut hashed = Sha256::new().chain_update(block_string.unwrap()).finalize();
+        let hashed = Sha256::new().chain_update(block_string.unwrap()).finalize();
 
         self.hash = format!("{:x}", hashed);
         self.hash.clone()

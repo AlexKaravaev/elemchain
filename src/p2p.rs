@@ -1,7 +1,6 @@
 use libp2p::{
     floodsub,
-    floodsub::{Floodsub, FloodsubEvent, Topic},
-    identity::Keypair,
+    floodsub::{Floodsub, FloodsubEvent},
     mdns::{Mdns, MdnsEvent},
     swarm::{NetworkBehaviourEventProcess, Swarm},
     NetworkBehaviour, PeerId,

@@ -11,7 +11,7 @@ impl Node {
     pub fn resolve_chain_conflict(&mut self, other: &Blockchain) {
         let own_valid = self.blockchain.is_valid();
         let other_valid = other.is_valid();
-        let mut correct_chain;
+        let correct_chain;
         if own_valid && other_valid {
             if self.blockchain.len() >= other.len() {
                 correct_chain = &self.blockchain;

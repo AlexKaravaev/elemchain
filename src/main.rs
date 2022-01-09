@@ -5,16 +5,12 @@ mod p2p;
 mod transaction;
 
 use blockchain::Blockchain;
-use dialoguer::{theme::ColorfulTheme, Input, Select};
-use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
+use dialoguer::{theme::ColorfulTheme, Select};
+use tokio::sync::mpsc::{UnboundedSender};
 use p2p::{AppBehaviour, ChainResponse};
-use rand::distributions::Alphanumeric;
 use rand::seq::SliceRandom;
-use rand::{thread_rng, Rng};
-use sha2::{digest::generic_array::GenericArray, Digest, Sha256};
 use std::time::{Duration, SystemTime};
 use std::{
-    io::{stdout, Write},
     thread,
 };
 use transaction::Transaction;
@@ -29,10 +25,8 @@ use libp2p::{
     PeerId, Transport,
 };
 use tokio::{
-    io::{stdin, AsyncBufReadExt, BufReader},
     select, spawn,
-    sync::{mpsc, oneshot},
-    time::sleep,
+    sync::{mpsc},
 };
 
 pub fn handle_print_chain(chain: &Blockchain) {
@@ -59,7 +53,7 @@ pub async fn swarm_factory(
     let behaviour =
         p2p::AppBehaviour::new(peer_id, node, rsp_sender).await;
 
-    let mut swarm = SwarmBuilder::new(transp, behaviour, peer_id).executor(Box::new(|fut| {
+    let swarm = SwarmBuilder::new(transp, behaviour, peer_id).executor(Box::new(|fut| {
         spawn(fut);
     }));
 
@@ -112,7 +106,7 @@ async fn main() {
             .interact()
             .unwrap();
 
-        cli_sender.send(selection);
+        cli_sender.send(selection).unwrap();
 
         // block sync only on interaction
         init_sender.send(true).expect("can send msg to init channel");
@@ -134,7 +128,7 @@ async fn main() {
                     Some(p2p::EventType::Cli)
 
                 },
-                event = swarm.select_next_some() => {
+                _event = swarm.select_next_some() => {
                     None
                 },
             }

@@ -56,7 +56,7 @@ impl Blockchain {
     }
 
     pub fn try_mine(&mut self, txs: Vec<Transaction>) -> bool {
-        let mut success;
+        let success;
         if txs.len() < self.min_tx_per_block.into() {
             println!(
                 "Not enough txs to mine block. Current txs {}, Current min is {}",
@@ -65,14 +65,11 @@ impl Blockchain {
             );
             success = false;
         } else {
-            let mut cntr = 0;
             let mut nonce = 0;
             loop {
-                cntr += 1;
-
                 let time = SystemTime::now();
 
-                let block = self.mine_block(1, time, txs.clone(), 3);
+                let block = self.mine_block(nonce, time, txs.clone());
                 match block {
                     Some(block) => {
                         self.chain.push(block);
@@ -92,8 +89,7 @@ impl Blockchain {
         &self,
         nonce: u64,
         time: SystemTime,
-        txs: Vec<Transaction>,
-        idx: u128,
+        txs: Vec<Transaction>
     ) -> Option<Block> {
         const CHARSET: &[u8] = b"abcdef\
                             0123456789";
@@ -108,7 +104,7 @@ impl Blockchain {
 
         mine_target = mine_target.to_lowercase();
 
-        let mut nonces: Vec<u64> = (0..self.concurrent_hashes).map(|x| x + nonce).collect();
+        let nonces: Vec<u64> = (0..self.concurrent_hashes).map(|x| x + nonce).collect();
 
         let prev = match self.chain.len() {
             0 => String::new(),
