@@ -68,7 +68,7 @@ pub mod tests {
     use std::time::SystemTime;
 
     pub fn generate_blocks() -> Vec<Block> {
-        let mut time_now = SystemTime::now();
+        let time_now = SystemTime::now();
 
         let tx1 = Transaction {
             from: String::from("Alice"),
@@ -106,7 +106,7 @@ pub mod tests {
 
     #[test]
     fn test_block() {
-        let mut time_now = SystemTime::now();
+        let time_now = SystemTime::now();
 
         let tx1 = Transaction {
             from: String::from("Alice"),
@@ -115,9 +115,9 @@ pub mod tests {
             amount: 32,
         };
 
-        let mut blocks = generate_blocks();
+        let blocks = generate_blocks();
         let mut new_block = blocks[0].clone();
-        let mut next_block = blocks[2].clone();
+        let next_block = blocks[2].clone();
         let mut same_block = blocks[1].clone();
 
         assert!(next_block.is_valid(&new_block));

@@ -149,8 +149,8 @@ impl fmt::Display for Blockchain {
 
 #[cfg(test)]
 pub mod tests {
-    use crate::block::tests::{self, generate_blocks};
-    use crate::{block::Block, blockchain::Blockchain, transaction::Transaction};
+    use crate::block::tests::generate_blocks;
+    use crate::{blockchain::Blockchain, transaction::Transaction};
     use std::time::SystemTime;
 
     pub fn generate_blockchain() -> Blockchain {
@@ -206,15 +206,15 @@ pub mod tests {
 
         let concurrent_hashes = 256;
         let chain = Blockchain::new(5, 3, concurrent_hashes);
-        let mut nonce = 0;
+        let mut _nonce = 0;
         let time = SystemTime::now();
 
         let mut cntr = 0;
         loop {
             cntr += 1;
 
-            chain.mine_block(1, time, txs.clone(), 3);
-            nonce += concurrent_hashes;
+            chain.mine_block(1, time, txs.clone());
+            _nonce += concurrent_hashes;
             if cntr == 100 {
                 break;
             }

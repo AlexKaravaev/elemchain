@@ -36,7 +36,7 @@ impl Node {
 mod tests {
     use crate::block::tests::generate_blocks;
     use crate::blockchain::tests::generate_blockchain;
-	use crate::{blockchain::Blockchain, node::Node, block::Block};
+	use crate::node::Node;
 
     #[test]
     fn test_conflict(){
@@ -52,6 +52,7 @@ mod tests {
 
         let mut node = Node{
             blockchain: invalid_chain,
+            last_time_synced: 0.0,
         };
 
         node.resolve_chain_conflict(&chain);
